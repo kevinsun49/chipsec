@@ -163,11 +163,11 @@ STATUS = {
 }
 
 LOCALITY = {
-  '0': 0x0000,
-  '1': 0x1000,
-  '2': 0x2000,
-  '3': 0x3000,
-  '4': 0x4000
+  0: 0x0000,
+  1: 0x1000,
+  2: 0x2000,
+  3: 0x3000,
+  4: 0x4000
 }
 
 COMMANDS = {
@@ -377,7 +377,7 @@ class TPM(hal_base.HALBase):
         self.logger.log( "\tReserved     : 0x{}".format(bin( sts_value & ( 1<<0 ) )[2]) )
 
     def dump_didvid( self, locality ):
-        """ 
+        """
         TPM's Vendor and Device ID
         """
         try:
