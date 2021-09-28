@@ -79,12 +79,13 @@ class TPMCommand(BaseCommand):
         self._tpm.command(self.command_name, self.locality, self.command_parameters)
 
     def tpm_state(self):
-        self._tpm.dump_access(self.locality)
-        self._tpm.dump_status(self.locality)
-        self._tpm.dump_didvid(self.locality)
-        self._tpm.dump_rid(self.locality)
-        self._tpm.dump_intcap(self.locality)
-        self._tpm.dump_intenable(self.locality)
+        # self._tpm.dump_access ( self.locality )
+        # self._tpm.dump_status ( self.locality )
+        # self._tpm.dump_didvid ( self.locality )
+        # self._tpm.dump_rid ( self.locality )
+        # self._tpm.dump_intcap ( self.locality )
+        # self._tpm.dump_intenable( self.locality )
+        self._tpm.dump_all(self.locality)
 
     def run(self):
         if self.func != self.tpm_parse:
@@ -95,6 +96,5 @@ class TPMCommand(BaseCommand):
                 return
 
         self.func()
-
 
 commands = {'tpm': TPMCommand}
