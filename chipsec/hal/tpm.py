@@ -106,9 +106,9 @@ class TPM(hal_base.HALBase):
 
     def _log_register_header(self, register_name, locality):
         num_spaces = 32 + (-len(register_name) // 2)  # ceiling division
-        self.logger.log( '=' * 64 )
-        self.logger.log( "{}{}_{}".format(' ' * num_spaces, register_name, locality) )
-        self.logger.log( '=' * 64 )
+        self.logger.log('=' * 64)
+        self.logger.log("{}{}_{}".format(' ' * num_spaces, register_name, locality))
+        self.logger.log('=' * 64)
 
     def dump_register(self, name, locality):
         if name in self.tpm.get_registers():

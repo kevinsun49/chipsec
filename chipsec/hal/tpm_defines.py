@@ -19,6 +19,7 @@
 #
 
 import chipsec.hal.tpm12_commands
+import chipsec.hal.tpm20_commands
 
 class TPM12_defines():
     COMMANDREADY = 0x40
@@ -225,5 +226,39 @@ class TPM12_defines():
         "forceclear": chipsec.hal.tpm12_commands.forceclear
     }
 
-class TPM2_FIFO_defines():
-    x = 1
+class TPM20_FIFO_defines():
+    COMMANDREADY = 0x40
+    TPMGO = 0x20
+    HEADERSIZE = 0x0A
+    HEADERFORMAT = '>HII'
+    BEENSEIZED  = 0x10
+    REQUESTUSE  = 0x2
+    ACTIVELOCALITY = 0x20
+    DATAAVAIL = 0x10
+
+    TPM_DATAFIFO = 0x0024
+    TPM_STS = 0x0018
+    TPM_DIDVID = 0x0F00
+    TPM_ACCESS = 0x0000
+    TPM_RID = 0x0F04
+    TPM_INTCAP = 0x0014
+    TPM_INTENABLE = 0x0008
+
+    LOCALITY = {
+        '0': 0x0000,
+        '1': 0x1000,
+        '2': 0x2000,
+        '3': 0x3000,
+        '4': 0x4000
+    }
+
+    COMMANDS = {
+        "startup": chipsec.hal.tpm20_commands.startup,
+        "shutdown": chipsec.hal.tpm20_commands.shutdown,
+        "selftest": chipsec.hal.tpm20_commands.selftest,
+        "nvread": chipsec.hal.tpm20_commands.nvread,
+        "nvwrite": chipsec.hal.tpm20_commands.nvwrite,
+        "pcrread": chipsec.hal.tpm20_commands.pcrread,
+        "nvdefinespace": chipsec.hal.tpm20_commands.nvdefinespace,
+        "nvundefinespace": chipsec.hal.tpm20_commands.nvundefinespace
+    }
