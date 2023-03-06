@@ -26,7 +26,7 @@ https://trustedcomputinggroup.org
 """
 
 import struct
-import sys
+from typing import Tuple
 from collections import namedtuple
 
 from chipsec.logger import logger
@@ -40,14 +40,14 @@ from chipsec.hal.tpm_defines import TPM12_defines, TPM20_FIFO_defines
 
 class TPM_RESPONSE_HEADER(namedtuple('TPM_RESPONSE_HEADER', 'ResponseTag DataSize ReturnCode')):
     __slots__ = ()
-    def __str__(self):
-        _str = """----------------------------------------------------------------
+    def __str__(self) -> str:
+        _str = f"""----------------------------------------------------------------
                      TPM response header
 ----------------------------------------------------------------
-   Response TAG: 0x{:x}
-   Data Size   : 0x{:x}
-   Return Code : 0x{:x}
-""".format(self.ResponseTag, self.DataSize, self.ReturnCode)
+   Response TAG: 0x{self.ResponseTag:x}
+   Data Size   : 0x{self.DataSize:x}
+   Return Code : 0x{self.ReturnCode:x}
+"""
         _str += "\t"
         try:
             _str += TPM12_defines.STATUS[self.ReturnCode]
@@ -61,16 +61,16 @@ class TPM_BASE(hal_base.HALBase):
         super(TPM_BASE, self).__init__(cs)
         self.list_of_registers = []
 
-    def get_registers(self):
+    def get_registers(self) -> list:
         return self.list_of_registers
 
-    def command(self):
+    def command(self, commandName: str, locality: str, *command_argv: str) -> None:
         raise NotImplementedError()
 
-    def send_command(self):
+    def send_command(self, Locality: int, command: bytes, size: int) -> None:
         raise NotImplementedError()
 
-    def read_response(self):
+    def read_response(self, Locality: int) -> Tuple[TPM_RESPONSE_HEADER, bytes, bytearray, bytearray]:
         raise NotImplementedError()
 
 class TPM12(TPM_BASE):
@@ -80,10 +80,8 @@ class TPM12(TPM_BASE):
         self.TPM_BASE = int(self.cs.Cfg.MEMORY_RANGES['TPM']['address'], 16)
         self.list_of_registers = ['TPM_ACCESS', 'TPM_STS', 'TPM_DID_VID', 'TPM_RID', 'TPM_INTF_CAPABILITY', 'TPM_INT_ENABLE']
 
-    def command(self, commandName, locality, command_argv):
-        """
-        Send command to the TPM and receive data
-        """
+    def command(self, commandName: str, locality: str, *command_argv: str) -> None:
+        """Send command to the TPM and receive data"""
         try:
             Locality = TPM12_defines.LOCALITY[locality]
         except:
@@ -106,8 +104,8 @@ class TPM12(TPM_BASE):
         (command, size) = TPM12_defines.COMMANDS[commandName](command_argv)
         self.send_command(Locality, command, size)
 
-        (header, data, header_blob, data_blob) = self.read_response(Locality)
-        self.logger.log(header)
+        (header, _, _, data_blob) = self.read_response(Locality)
+        self.logger.log(str(header))
         print_buffer(str(data_blob))
         self.logger.log('\n')
 
@@ -118,10 +116,8 @@ class TPM12(TPM_BASE):
             self.helper.write_mmio_reg(access_address, 4, TPM12_defines.BEENSEIZED)
         self.helper.write_mmio_reg(access_address, 1, TPM12_defines.ACTIVELOCALITY)
 
-    def send_command(self, Locality, command, size):
-        """
-        Send a command to the TPM using the locality specified
-        """
+    def send_command(self, Locality: int, command: bytes, size: int) -> None:
+        """Send a command to the TPM using the locality specified"""
         count = 0
 
         datafifo_address = self.TPM_BASE | Locality | TPM12_defines.TPM_DATAFIFO
@@ -143,18 +139,14 @@ class TPM12(TPM_BASE):
             burst_index = 0
             while (burst_index < burst_count) and (count < size):
                 datafifo_value = command[count]
-                if sys.version_info.major == 2:
-                    datafifo_value = struct.unpack("=B", datafifo_value)[0]
                 self.helper.write_mmio_reg(datafifo_address, 1, datafifo_value)
                 count += 1
                 burst_index += 0x1
 
         self.helper.write_mmio_reg(sts_address, 1, TPM12_defines.TPMGO)
 
-    def read_response(self, Locality):
-        """
-        Read the TPM's response using the specified locality
-        """
+    def read_response(self, Locality: int) -> Tuple[TPM_RESPONSE_HEADER, bytes, bytearray, bytearray]:
+        """Read the TPM's response using the specified locality"""
         count = 0
         header = ""
         header_blob = bytearray()
@@ -210,10 +202,8 @@ class TPM20_FIFO(TPM_BASE):
         self.TPM_BASE = int(self.cs.Cfg.MEMORY_RANGES['TPM']['address'], 16)
         self.list_of_registers = []
 
-    def command(self, commandName, locality, command_argv):
-        """
-        Send command to the TPM and receive data
-        """
+    def command(self, commandName: str, locality: str, *command_argv: str) -> None:
+        """Send command to the TPM and receive data"""
         try:
             Locality = TPM20_FIFO_defines.LOCALITY[locality]
         except:
@@ -236,8 +226,8 @@ class TPM20_FIFO(TPM_BASE):
         (command, size) = TPM20_FIFO_defines.COMMANDS[commandName](command_argv)
         self.send_command(Locality, command, size)
 
-        (header, data, header_blob, data_blob) = self.read_response(Locality)
-        self.logger.log(header)
+        (header, _, _, data_blob) = self.read_response(Locality)
+        self.logger.log(str(header))
         print_buffer(str(data_blob))
         self.logger.log('\n')
 
@@ -248,10 +238,8 @@ class TPM20_FIFO(TPM_BASE):
             self.helper.write_mmio_reg(access_address, 4, TPM20_FIFO_defines.BEENSEIZED)
         self.helper.write_mmio_reg(access_address, 1, TPM20_FIFO_defines.ACTIVELOCALITY)
 
-    def send_command(self, Locality, command, size):
-        """
-        Send a command to the TPM using the locality specified
-        """
+    def send_command(self, Locality: int, command: bytes, size: int) -> None:
+        """Send a command to the TPM using the locality specified"""
         count = 0
 
         datafifo_address = self.TPM_BASE | Locality | TPM20_FIFO_defines.TPM_DATAFIFO
@@ -273,18 +261,14 @@ class TPM20_FIFO(TPM_BASE):
             burst_index = 0
             while (burst_index < burst_count) and (count < size):
                 datafifo_value = command[count]
-                if sys.version_info.major == 2:
-                    datafifo_value = struct.unpack("=B", datafifo_value)[0]
                 self.helper.write_mmio_reg(datafifo_address, 1, datafifo_value)
                 count += 1
                 burst_index += 0x1
 
         self.helper.write_mmio_reg(sts_address, 1, TPM20_FIFO_defines.TPMGO)
 
-    def read_response(self, Locality):
-        """
-        Read the TPM's response using the specified locality
-        """
+    def read_response(self, Locality: int) -> Tuple[TPM_RESPONSE_HEADER, bytes, bytearray, bytearray]:
+        """Read the TPM's response using the specified locality"""
         count = 0
         header = ""
         header_blob = bytearray()
@@ -341,10 +325,10 @@ class TPM20_CRB(TPM_BASE):
         self.TPM_BASE = int(self.cs.Cfg.MEMORY_RANGES['TPM']['address'], 16)
         self.list_of_registers = []
 
-    def send_command(self):
+    def send_command(self, Locality: int, command: bytes, size: int) -> None:
         raise NotImplementedError()
 
-    def read_response(self):
+    def read_response(self, Locality: int) -> Tuple[TPM_RESPONSE_HEADER, bytes, bytearray, bytearray]:
         raise NotImplementedError()
 
 

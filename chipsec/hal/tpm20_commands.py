@@ -27,6 +27,7 @@ TCG PC Client TPM Specification
 TCG TPM v2.0 Specification
 """
 
+from typing import Dict
 import struct
 from chipsec.logger import logger
 
@@ -42,22 +43,22 @@ TPM2_NVUNDEFINESPACE_COMMAND = 0x00000122
 TPM_ST_NO_SESSIONS = 0x8001
 TPM_ST_SESSIONS = 0x8002
 
-SESSIONS = {
+SESSIONS: Dict[int, int] = {
     0: TPM_ST_NO_SESSIONS,
     1: TPM_ST_SESSIONS
 }
 
-TPM_SU = {
+TPM_SU: Dict[int, int] = {
     0: 0x0000,  # TPM_SU_CLEAR
     1: 0x0001   # TPM_SU_STATE
 }
 
-TPMI_YES_NO = {
+TPMI_YES_NO: Dict[int, int] = {
     0: 0x00,
     1: 0x01
 }
 
-TPMI_RH_NV_AUTH = {
+TPMI_RH_NV_AUTH: Dict[int, int] = {
     1: 0x4000000C,  # TPM_RH_PLATFORM
     2: 0x40000001   # TPM_RH_OWNER
 }

@@ -18,6 +18,8 @@
 #chipsec@intel.com
 #
 
+from typing import Dict
+
 import chipsec.hal.tpm12_commands
 import chipsec.hal.tpm20_commands
 
@@ -63,7 +65,7 @@ class TPM12_defines():
     TSC_ORD_PHYSICALPRESENCE = 0x0A000040
     TSC_ORD_RESETESTABLISHMENTBIT = 0x0B000040
 
-    STATUS = {
+    STATUS: Dict[int, str] = {
         0x00: "Success",
         0x01: "ERROR: Authentication Failed",
         0x02: "ERROR: The index to a PCR, DIR or other register is incorrect",
@@ -170,7 +172,7 @@ class TPM12_defines():
         0x803: "NON-FATAL ERROR: The TPM is defending against dictionary attacks and is in some time-out period."
     }
 
-    LOCALITY = {
+    LOCALITY: Dict[str, int] = {
         '0': 0x0000,
         '1': 0x1000,
         '2': 0x2000,
@@ -178,13 +180,13 @@ class TPM12_defines():
         '4': 0x4000
     }
 
-    STARTUP = {
+    STARTUP: Dict[int, int] = {
         1: 0x0100,
         2: 0x0200,
         3: 0x0300
     }
 
-    PCR= {
+    PCR: Dict[int, int] = {
         0: 0x00000000,
         1: 0x01000000,
         2: 0x02000000,
@@ -218,7 +220,7 @@ class TPM12_defines():
         30: 0x1e000000
     }
 
-    COMMANDS = {
+    COMMANDS: Dict[str, callable] = {
         "pcrread": chipsec.hal.tpm12_commands.pcrread,
         "nvread": chipsec.hal.tpm12_commands.nvread,
         "startup": chipsec.hal.tpm12_commands.startup,

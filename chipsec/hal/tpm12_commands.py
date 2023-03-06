@@ -26,6 +26,7 @@ TCG PC Client TPM Specification
 TCG TPM v1.2 Specification
 """
 
+from typing import Dict
 import struct
 from typing import Dict, Tuple
 from chipsec.logger import logger
